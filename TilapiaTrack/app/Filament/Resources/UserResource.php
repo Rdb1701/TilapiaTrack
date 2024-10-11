@@ -14,16 +14,20 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Users';
+    protected static ?string $navigationLabel = 'Users / Beneficiary';
 
     protected static ?string $navigationGroup = 'User Management';
+
+
 
     public static function form(Form $form): Form
     {
@@ -82,7 +86,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('email'),
                 Tables\Columns\TextColumn::make('role'),
-                Tables\Columns\ImageColumn::make('profile_picture'),
+                Tables\Columns\ImageColumn::make('profile_picture')
+                ->circular(),
             ])
             ->filters([
                 //
@@ -90,7 +95,23 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-               
+                Tables\Actions\Action::make('sendNotification')
+                    ->icon('heroicon-o-bell')
+                    ->action(function (User $user) {
+                        
+                        Notification::make()
+                            ->title('Welcome to our platform!')
+                            ->body("Hello {$user->name}, Its time to feed your fishes.")
+                            ->icon('heroicon-o-information-circle')
+                            ->iconColor('success')
+                            // ->sendToDatabase($user);
+                            ->broadcast($user);
+
+                        Notification::make()
+                            ->title('Notification sent successfully')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

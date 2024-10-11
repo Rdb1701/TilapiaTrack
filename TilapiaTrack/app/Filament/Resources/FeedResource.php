@@ -17,7 +17,7 @@ class FeedResource extends Resource
 {
     protected static ?string $model = Feed::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
     protected static ?string $navigationGroup = 'Fingerling Management';
 
     public static function form(Form $form): Form
@@ -57,7 +57,7 @@ class FeedResource extends Resource
             ])
             ->actions([
                 
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->modalWidth('lg'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -78,9 +78,9 @@ class FeedResource extends Resource
     {
         return [
             'index' => Pages\ListFeeds::route('/'),
-            'create' => Pages\CreateFeed::route('/create'),
-            'view' => Pages\ViewFeed::route('/{record}'),
-            'edit' => Pages\EditFeed::route('/{record}/edit'),
+            // 'create' => Pages\CreateFeed::route('/create'),
+            // 'view' => Pages\ViewFeed::route('/{record}'),
+            // 'edit' => Pages\EditFeed::route('/{record}/edit'),
         ];
     }
 }

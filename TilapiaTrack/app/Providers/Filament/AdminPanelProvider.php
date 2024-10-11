@@ -57,7 +57,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('fish.webp'))
             ->brandLogoHeight('3rem')
             ->favicon(asset('fish.png'))
-            ->brandName('Tilapia Track');
+            ->brandName('Tilapia Track')
+            ->databaseNotifications();
             
             
     }

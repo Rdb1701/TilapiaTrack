@@ -39,7 +39,7 @@ class FingerlingResource extends Resource
                     ->preload()
                     ->label('Fishpond')
                     ->required(),
-                    Forms\Components\Select::make('species')
+                Forms\Components\Select::make('species')
                     ->options([
                         'Tilapia'    => 'Tilapia',
                     ])
@@ -64,6 +64,11 @@ class FingerlingResource extends Resource
                 Tables\Columns\TextColumn::make('fishpond.name')
                     ->numeric()
                     ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('fishpond.user.name')
+                    ->numeric()
+                    ->sortable()
+                    ->label('Owner')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('species')
                     ->searchable(),
@@ -90,6 +95,7 @@ class FingerlingResource extends Resource
                 //
             ])
             ->actions([
+                
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

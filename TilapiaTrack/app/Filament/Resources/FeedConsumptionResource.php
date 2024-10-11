@@ -2,27 +2,23 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FeedingScheduleResource\Pages;
-use App\Filament\Resources\FeedingScheduleResource\RelationManagers;
-use App\Models\FeedingSchedule;
+use App\Filament\Resources\FeedConsumptionResource\Pages;
+use App\Filament\Resources\FeedConsumptionResource\RelationManagers;
+use App\Models\FeedConsumption;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Exports\FeedingScheduleExporter;
-use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Tables\Actions\ExportBulkAction;
 
-
-class FeedingScheduleResource extends Resource
+class FeedConsumptionResource extends Resource
 {
-    protected static ?string $model = FeedingSchedule::class;
+    protected static ?string $model = FeedConsumption::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
+
     protected static ?string $navigationGroup = 'Fingerling Management';
 
     public static function form(Form $form): Form
@@ -42,23 +38,18 @@ class FeedingScheduleResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\TimePicker::make('feed_time')
+                Forms\Components\Select::make('feed_id')
+                    ->relationship(name: 'feed', titleAttribute: 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
-                Forms\Components\Select::make('days_of_week')
+                Forms\Components\TextInput::make('quantity')
+                    ->placeholder('Kilograms')
                     ->required()
-                    ->multiple()
-                    ->options([
-                        'Monday'    => 'Monday',
-                        'Tuesday'   => 'Tuesday',
-                        'Wednesday' => 'Wednesday',
-                        'Thursday'  => 'Thursday',
-                        'Friday'    => 'Friday',
-                        'Saturday'  => 'Saturday',
-                        'Sunday'    => 'Sunday',
-                    ])
-                    ->native(false)
-                    ->placeholder('Select days of the week'),
-            ])->columns(1);
+                    ->numeric(),
+                Forms\Components\DatePicker::make('consumption_date')
+                    ->required(),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -78,15 +69,16 @@ class FeedingScheduleResource extends Resource
                     ->numeric()
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('fingerling.quantity')
+                Tables\Columns\TextColumn::make('feed.name')
                     ->numeric()
-                    ->label('Quantity')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('feed_time')
-                    ->label('Feed Time')
-                    ->dateTime('h:i A'),
-                Tables\Columns\TextColumn::make('days_of_week')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('quantity')
+                    ->numeric()
+                    ->formatStateUsing(fn($state) => $state . ' kg')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('consumption_date')
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -100,20 +92,13 @@ class FeedingScheduleResource extends Resource
                 //
             ])
             ->actions([
-
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    ExportBulkAction::make()
-                        ->exporter(FeedingScheduleExporter::class)
-                        ->formats([
-                            ExportFormat::Xlsx,
-                        ])
                 ]),
             ]);
     }
@@ -128,10 +113,10 @@ class FeedingScheduleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFeedingSchedules::route('/'),
-            'create' => Pages\CreateFeedingSchedule::route('/create'),
-            'view' => Pages\ViewFeedingSchedule::route('/{record}'),
-            'edit' => Pages\EditFeedingSchedule::route('/{record}/edit'),
+            'index' => Pages\ListFeedConsumptions::route('/'),
+            'create' => Pages\CreateFeedConsumption::route('/create'),
+            'view' => Pages\ViewFeedConsumption::route('/{record}'),
+            'edit' => Pages\EditFeedConsumption::route('/{record}/edit'),
         ];
     }
 }
