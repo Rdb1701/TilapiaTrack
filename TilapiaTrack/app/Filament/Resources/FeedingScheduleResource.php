@@ -14,7 +14,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Exports\FeedingScheduleExporter;
+use App\Models\User;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Notifications\Notification;
+use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\ExportBulkAction;
 
 
@@ -100,10 +103,52 @@ class FeedingScheduleResource extends Resource
                 //
             ])
             ->actions([
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\Action::make('sendNotification')
+                        ->icon('heroicon-o-bell')
+                        ->form([
+                            Forms\Components\Textarea::make('custom_message')
+                                ->label('Message')
+                                ->placeholder('Type your custom message for the Beneficiary...')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, FeedingSchedule $schedule) {
+                            // Retrieve the user related to the feeding schedule via fingerling -> fishpond -> user
+                            $user = $schedule->fingerling->fishpond->user;
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                            if ($user) {
+                                // Use the custom message provided in the form
+                                $customMessage = $data['custom_message'];
+
+                                Notification::make()
+                                    ->title('Feeding Time Reminder!')
+                                    ->body("Hello {$user->name}, {$customMessage}")
+                                    ->icon('heroicon-o-information-circle')
+                                    ->iconColor('success')
+                                    ->broadcast($user)
+                                    ->sendToDatabase($user);;
+                                     
+
+                                Notification::make()
+                                    ->title('Notification sent successfully')
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('User not found')
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
+                ])
+                ->label('More actions')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size(ActionSize::Small)
+                ->color('primary')
+                ->button()
 
             ])
             ->bulkActions([

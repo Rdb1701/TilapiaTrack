@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class FeedingSchedule extends Model
 {
     /** @use HasFactory<\Database\Factories\FeedingScheduleFactory> */
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'fingerling_id',

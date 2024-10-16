@@ -21,6 +21,8 @@ class FingerlingResource extends Resource
 
     protected static ?string $navigationGroup = 'Fingerling Management';
 
+    protected static ?string $navigationLabel = 'Fingerling Distribution';
+
     public static function form(Form $form): Form
     {
         return $form

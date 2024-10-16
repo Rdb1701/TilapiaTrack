@@ -95,23 +95,23 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('sendNotification')
-                    ->icon('heroicon-o-bell')
-                    ->action(function (User $user) {
+                // Tables\Actions\Action::make('sendNotification')
+                //     ->icon('heroicon-o-bell')
+                //     ->action(function (User $user) {
                         
-                        Notification::make()
-                            ->title('Welcome to our platform!')
-                            ->body("Hello {$user->name}, Its time to feed your fishes.")
-                            ->icon('heroicon-o-information-circle')
-                            ->iconColor('success')
-                            // ->sendToDatabase($user);
-                            ->broadcast($user);
+                //         Notification::make()
+                //             ->title('Welcome to our platform!')
+                //             ->body("Hello {$user->name}, Its time to feed your fishes.")
+                //             ->icon('heroicon-o-information-circle')
+                //             ->iconColor('success')
+                //             // ->sendToDatabase($user);
+                //             ->broadcast($user);
 
-                        Notification::make()
-                            ->title('Notification sent successfully')
-                            ->success()
-                            ->send();
-                    }),
+                //         Notification::make()
+                //             ->title('Notification sent successfully')
+                //             ->success()
+                //             ->send();
+                //     }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('harvests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fingerling_id')->constrained()->onDelete('cascade'); // Foreign key to fingerlings
+            $table->foreignId('fingerling_id')->constrained()->onDelete('cascade'); 
             $table->date('harvest_date');
             $table->decimal('total_harvest', 10, 2); // Total kilograms of fish harvested
             $table->string('image_path')->nullable(); // Path to an image of the harvest
