@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\FeedConsumptionResource\Pages;
-use App\Filament\Resources\FeedConsumptionResource\RelationManagers;
+use App\Filament\App\Resources\FeedConsumptionResource\Pages;
+use App\Filament\App\Resources\FeedConsumptionResource\RelationManagers;
 use App\Models\FeedConsumption;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,14 +12,18 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class FeedConsumptionResource extends Resource
 {
     protected static ?string $model = FeedConsumption::class;
 
+    protected static ?string $navigationGroup = 'Fingerling Consumptions';
+
     protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
 
-    protected static ?string $navigationGroup = 'Fingerling Consumptions';
+    protected static ?string $navigationLabel = 'Feeding Consumptions';
+
 
     protected static ?int $navigationSort = 4;
 
@@ -27,18 +31,20 @@ class FeedConsumptionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\select::make('fingerling_id')
+                Forms\Components\Select::make('fingerling_id')
                     ->options(function () {
-                        return \App\Models\Fingerling::with('fishpond.user')
+                        return \App\Models\Fingerling::whereHas('fishpond.user', function ($query) {
+                            $query->where('id', Auth::user()->id);
+                        })
+                            ->with('fishpond.user')
                             ->get()
                             ->mapWithKeys(function ($fingerling) {
                                 return [
-                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . $fingerling->quantity,
+                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->species . ' | ' . $fingerling->quantity,
                                 ];
                             });
-                    })->label('Fishpond | Owner| Species | Quantity')
-                    ->searchable()
-                    ->preload()
+                    })
+                    ->label('Fishpond')
                     ->required(),
                 Forms\Components\Select::make('feed_id')
                     ->relationship(name: 'feed', titleAttribute: 'name')
@@ -51,7 +57,7 @@ class FeedConsumptionResource extends Resource
                     ->numeric(),
                 Forms\Components\DatePicker::make('consumption_date')
                     ->required(),
-            ]);
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -61,11 +67,6 @@ class FeedConsumptionResource extends Resource
                 Tables\Columns\TextColumn::make('fingerling.fishpond.name')
                     ->numeric()
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('fingerling.fishpond.user.name')
-                    ->numeric()
-                    ->searchable()
-                    ->label('Owner')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('fingerling.species')
                     ->numeric()
@@ -94,8 +95,8 @@ class FeedConsumptionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -114,15 +115,17 @@ class FeedConsumptionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFeedConsumptions::route('/'),
-            // 'create' => Pages\CreateFeedConsumption::route('/create'),
-            // 'view' => Pages\ViewFeedConsumption::route('/{record}'),
-            // 'edit' => Pages\EditFeedConsumption::route('/{record}/edit'),
+            'index'  => Pages\ListFeedConsumptions::route('/'),
+            'create' => Pages\CreateFeedConsumption::route('/create'),
+            'edit'   => Pages\EditFeedConsumption::route('/{record}/edit'),
         ];
     }
 
-    public static function canCreate(): bool
+    public static function getEloquentQuery(): Builder
     {
-        return false;
+        return parent::getEloquentQuery()
+            ->whereHas('fingerling.fishpond', function (Builder $query) {
+                $query->where('user_id', Auth::id());
+            });
     }
 }

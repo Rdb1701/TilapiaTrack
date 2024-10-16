@@ -15,7 +15,12 @@ class Fishpond extends Model
         'user_id',
         'name',
         'size',
-        'location'
+        'location',
+        'picture'
+    ];
+
+    protected $casts = [
+        'picture' => 'array',
     ];
 
     public function user(): BelongsTo

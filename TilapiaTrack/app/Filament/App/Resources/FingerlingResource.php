@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\FingerlingResource\Pages;
-use App\Filament\Resources\FingerlingResource\RelationManagers;
+use App\Filament\App\Resources\FingerlingResource\Pages;
+use App\Filament\App\Resources\FingerlingResource\RelationManagers;
 use App\Models\Fingerling;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class FingerlingResource extends Resource
 {
@@ -21,7 +22,7 @@ class FingerlingResource extends Resource
 
     protected static ?string $navigationGroup = 'Fingerling Management';
 
-    protected static ?string $navigationLabel = 'Fingerling Distribution';
+    protected static ?string $navigationLabel = 'Fingerlings';
 
     protected static ?int $navigationSort = 2;
 
@@ -42,6 +43,7 @@ class FingerlingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Fishpond')
+                    ->disabled()
                     ->required(),
                 Forms\Components\Select::make('species')
                     ->options([
@@ -51,6 +53,7 @@ class FingerlingResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('date_deployed')
                     ->native(false)
+                    ->disabled()
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
                     ->required()
@@ -68,11 +71,6 @@ class FingerlingResource extends Resource
                 Tables\Columns\TextColumn::make('fishpond.name')
                     ->numeric()
                     ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fishpond.user.name')
-                    ->numeric()
-                    ->sortable()
-                    ->label('Owner')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('species')
                     ->searchable(),
@@ -99,10 +97,8 @@ class FingerlingResource extends Resource
                 //
             ])
             ->actions([
-                
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -121,10 +117,23 @@ class FingerlingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFingerlings::route('/'),
+            'index'  => Pages\ListFingerlings::route('/'),
             'create' => Pages\CreateFingerling::route('/create'),
-            'view' => Pages\ViewFingerling::route('/{record}'),
-            'edit' => Pages\EditFingerling::route('/{record}/edit'),
+            'edit'   => Pages\EditFingerling::route('/{record}/edit'),
         ];
+    }
+
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereHas('fishpond', function (Builder $query) {
+                $query->where('user_id', Auth::id());
+            });
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }

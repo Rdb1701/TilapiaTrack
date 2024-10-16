@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Exports\FeedingScheduleExporter;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\ActionSize;
@@ -27,6 +28,8 @@ class FeedingScheduleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
     protected static ?string $navigationGroup = 'Fingerling Management';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
@@ -129,8 +132,8 @@ class FeedingScheduleResource extends Resource
                                     ->icon('heroicon-o-information-circle')
                                     ->iconColor('success')
                                     ->broadcast($user)
-                                    ->sendToDatabase($user);;
-                                     
+                                    ->sendToDatabase($user);
+
 
                                 Notification::make()
                                     ->title('Notification sent successfully')
@@ -144,11 +147,11 @@ class FeedingScheduleResource extends Resource
                             }
                         }),
                 ])
-                ->label('More actions')
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->size(ActionSize::Small)
-                ->color('primary')
-                ->button()
+                    ->label('More actions')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->size(ActionSize::Small)
+                    ->color('primary')
+                    ->button()
 
             ])
             ->bulkActions([

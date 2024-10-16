@@ -21,6 +21,8 @@ class FishpondResource extends Resource
 
     protected static ?string $navigationGroup = 'Fingerling Management';
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -58,6 +60,15 @@ class FishpondResource extends Resource
                     ->native(false)
                     ->label('Barangay')
                     ->required(),
+                Forms\Components\FileUpload::make('picture')
+                    ->label('Fishpond Picture')
+                    ->required()
+                    ->imageResizeMode('cover')
+                    ->openable()
+                    ->multiple()
+                    ->downloadable()
+                    ->panelLayout('grid')
+                    ->columnSpanFull(),
             ])->columns(1);
     }
 
@@ -77,6 +88,11 @@ class FishpondResource extends Resource
                 Tables\Columns\TextColumn::make('location')
                     ->label('Barangay')
                     ->searchable(),
+                Tables\Columns\ImageColumn::make('picture')
+                    ->stacked()
+                    ->circular()
+                    ->limit(3)
+                    ->limitedRemainingText(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
