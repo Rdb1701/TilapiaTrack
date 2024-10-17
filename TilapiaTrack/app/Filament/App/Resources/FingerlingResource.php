@@ -101,9 +101,9 @@ class FingerlingResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -119,7 +119,7 @@ class FingerlingResource extends Resource
         return [
             'index'  => Pages\ListFingerlings::route('/'),
             'create' => Pages\CreateFingerling::route('/create'),
-            'edit'   => Pages\EditFingerling::route('/{record}/edit'),
+            // 'edit'   => Pages\EditFingerling::route('/{record}/edit'),
         ];
     }
 
@@ -132,8 +132,11 @@ class FingerlingResource extends Resource
             });
     }
 
+
     public static function canCreate(): bool
     {
         return false;
     }
+
+   
 }

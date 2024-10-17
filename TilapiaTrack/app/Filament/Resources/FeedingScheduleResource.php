@@ -49,6 +49,8 @@ class FeedingScheduleResource extends Resource
                     ->preload()
                     ->required(),
                 Forms\Components\TimePicker::make('feed_time')
+                    ->seconds(false)
+                    ->format('H:i')
                     ->required(),
                 Forms\Components\Select::make('days_of_week')
                     ->required()

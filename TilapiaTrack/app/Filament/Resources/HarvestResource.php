@@ -1,18 +1,22 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\Resources;
 
-use App\Filament\App\Resources\HarvestResource\Pages;
-use App\Filament\App\Resources\HarvestResource\RelationManagers;
+use App\Filament\Exports\HarvestExporter;
+use App\Filament\Resources\HarvestResource\Pages;
+use App\Filament\Resources\HarvestResource\RelationManagers;
 use App\Models\Harvest;
+use App\Models\User;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class HarvestResource extends Resource
 {
@@ -20,9 +24,9 @@ class HarvestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Harvest Management';
+    protected static ?string $navigationGroup = 'Fingerling Consumptions';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
     {
@@ -30,17 +34,15 @@ class HarvestResource extends Resource
             ->schema([
                 Forms\Components\Select::make('fingerling_id')
                     ->options(function () {
-                        return \App\Models\Fingerling::whereHas('fishpond.user', function ($query) {
-                            $query->where('id', Auth::user()->id);
-                        })
+                        return \App\Models\Fingerling::whereHas('fishpond.user')
                             ->with('fishpond.user')
                             ->get()
                             ->mapWithKeys(function ($fingerling) {
                                 return [
-                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->species . ' | ' . $fingerling->quantity,
+                                    $fingerling->id => $fingerling->fishpond->name . ' - '. $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . $fingerling->quantity,
                                 ];
                             });
-                    }),
+                    })->label('Fishpond | Owner| Species | Quantity'),
                 Forms\Components\DatePicker::make('harvest_date')
                     ->required(),
                 Forms\Components\TextInput::make('total_harvest')
@@ -67,6 +69,11 @@ class HarvestResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('fingerling.fishpond.user.name')
+                    ->numeric()
+                    ->label('Owner')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('total_harvest')
                     ->formatStateUsing(fn($state) => $state . ' kg')
                     ->searchable(),
@@ -81,16 +88,33 @@ class HarvestResource extends Resource
                     ->limitedRemainingText(),
             ])
             ->filters([
-                //
+                SelectFilter::make('owner')
+                    ->label('Filter by Owner')
+                    ->options(User::pluck('name', 'id'))
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $userId): Builder => $query->whereHas('fingerling.fishpond.user', function (Builder $query) use ($userId) {
+                                $query->where('id', $userId);
+                            })
+                        );
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ])->headerActions([ 
+                ExportAction::make() 
+                    ->exporter(HarvestExporter::class) 
+                    ->formats([
+                        ExportFormat::Xlsx, 
+                    ])
+                    ->icon('heroicon-o-arrow-down-on-square')
+                    ->label('Export Data'), 
             ]);
     }
 
@@ -110,11 +134,8 @@ class HarvestResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
+    public static function canCreate(): bool
     {
-        return parent::getEloquentQuery()
-        ->whereHas('fingerling.fishpond', function (Builder $query) {
-            $query->where('user_id', Auth::id());
-        });
+        return false;
     }
 }

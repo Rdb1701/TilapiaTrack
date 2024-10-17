@@ -23,6 +23,9 @@ class SendFeedingNotifications extends Command
             ->whereJsonContains('days_of_week', $currentDay)
             ->with('fingerling.fishpond.user')
             ->get();
+        
+            // $schedules = FeedingSchedule::with('fingerling.fishpond.user')
+            // ->get();
 
         foreach ($schedules as $schedule) {
             $user = $schedule->fingerling->fishpond->user;

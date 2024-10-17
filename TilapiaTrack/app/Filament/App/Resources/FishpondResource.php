@@ -118,7 +118,7 @@ class FishpondResource extends Resource
     {
         return [
             'index' => Pages\ListFishponds::route('/'),
-            // 'create' => Pages\CreateFishpond::route('/create'),
+            'create' => Pages\CreateFishpond::route('/create'),
             // 'view'  => Pages\ViewFishpond::route('/{record}'),
             'edit'  => Pages\EditFishpond::route('/{record}/edit'),
         ];
@@ -130,8 +130,8 @@ class FishpondResource extends Resource
             ->where('user_id', Auth::id());
     }
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
+    // public static function canCreate(): bool
+    // {
+    //     return false;
+    // }
 }

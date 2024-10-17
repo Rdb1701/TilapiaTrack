@@ -2,13 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\FeedConsumptionExporter;
+use App\Filament\Exports\FeedConsumptionPdfExporter;
 use App\Filament\Resources\FeedConsumptionResource\Pages;
 use App\Filament\Resources\FeedConsumptionResource\RelationManagers;
 use App\Models\FeedConsumption;
+
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -81,26 +87,46 @@ class FeedConsumptionResource extends Resource
                 Tables\Columns\TextColumn::make('consumption_date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Consumption Date Filter
+                Tables\Filters\Filter::make('consumption_date')
+                    ->form([
+                        Forms\Components\DatePicker::make('consumption_date')
+                            ->label('Consumption Date'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['consumption_date'],
+                            fn(Builder $query, $date): Builder => $query->whereDate('consumption_date', $date),
+                        );
+                    })
+                    ->label('Consumption Date'),
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
+                        ->exporter(FeedConsumptionExporter::class)
+                        ->formats([
+                            ExportFormat::Xlsx,
+                        ])
                 ]),
+            ])
+            ->headerActions([ 
+                ExportAction::make() 
+                    ->exporter(FeedConsumptionExporter::class) 
+                    ->formats([
+                        ExportFormat::Xlsx, 
+                    ])
+                    ->icon('heroicon-o-arrow-down-on-square')
+                    ->label('Export Data'), 
             ]);
     }
 

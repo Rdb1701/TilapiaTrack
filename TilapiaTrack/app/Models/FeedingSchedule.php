@@ -22,6 +22,11 @@ class FeedingSchedule extends Model
         'days_of_week' => 'array', 
     ];
 
+    public function setFeedTimeAttribute($value)
+    {
+        $this->attributes['feed_time'] = substr($value, 0, 5) . ':01';
+    }
+
     public function fingerling(): BelongsTo
     {
         return $this->belongsTo(Fingerling::class);
