@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\FeedingScheduleResource\Pages;
 use App\Filament\App\Resources\FeedingScheduleResource\RelationManagers;
 use App\Models\FeedingSchedule;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -30,36 +31,36 @@ class FeedingScheduleResource extends Resource
     {
         return $form
             ->schema([
-                    Forms\Components\select::make('fingerling_id')
-                        ->options(function () {
-                            return \App\Models\Fingerling::with('fishpond.user')
-                                ->get()
-                                ->mapWithKeys(function ($fingerling) {
-                                    return [
-                                        $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . $fingerling->quantity,
-                                    ];
-                                });
-                        })->label('Fishpond | Owner| Species | Quantity')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    Forms\Components\TimePicker::make('feed_time')
-                        ->required(),
-                    Forms\Components\Select::make('days_of_week')
-                        ->required()
-                        ->multiple()
-                        ->options([
-                            'Monday'    => 'Monday',
-                            'Tuesday'   => 'Tuesday',
-                            'Wednesday' => 'Wednesday',
-                            'Thursday'  => 'Thursday',
-                            'Friday'    => 'Friday',
-                            'Saturday'  => 'Saturday',
-                            'Sunday'    => 'Sunday',
-                        ])
-                        ->native(false)
-                        ->placeholder('Select days of the week'),
-                ])->columns(1);
+                Forms\Components\select::make('fingerling_id')
+                    ->options(function () {
+                        return \App\Models\Fingerling::with('fishpond.user')
+                            ->get()
+                            ->mapWithKeys(function ($fingerling) {
+                                return [
+                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . $fingerling->quantity,
+                                ];
+                            });
+                    })->label('Fishpond | Owner| Species | Quantity')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Forms\Components\TimePicker::make('feed_time')
+                    ->required(),
+                Forms\Components\Select::make('days_of_week')
+                    ->required()
+                    ->multiple()
+                    ->options([
+                        'Monday'    => 'Monday',
+                        'Tuesday'   => 'Tuesday',
+                        'Wednesday' => 'Wednesday',
+                        'Thursday'  => 'Thursday',
+                        'Friday'    => 'Friday',
+                        'Saturday'  => 'Saturday',
+                        'Sunday'    => 'Sunday',
+                    ])
+                    ->native(false)
+                    ->placeholder('Select days of the week'),
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -67,37 +68,43 @@ class FeedingScheduleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('fingerling.fishpond.name')
-                ->numeric()
-                ->searchable()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('fingerling.species')
-                ->numeric()
-                ->searchable()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('fingerling.quantity')
-                ->numeric()
-                ->label('Quantity')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('feed_time')
-                ->label('Feed Time')
-                ->dateTime('h:i A'),
-            Tables\Columns\TextColumn::make('days_of_week')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('created_at')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('updated_at')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('fingerling.species')
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('fingerling.quantity')
+                    ->numeric()
+                    ->label('Quantity')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('feed_time')
+                    ->label('Feed Time')
+                    ->getStateUsing(function ($record) {
+                        // Directly use the array
+                        $times = $record->feed_time;
+
+                        // Format each time and join them with a comma
+                        return collect($times)->map(function ($time) {
+                            return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
+                        })->implode(', ');
+                    }),
+                Tables\Columns\TextColumn::make('days_of_week')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-               
-            ])
+            ->actions([])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),

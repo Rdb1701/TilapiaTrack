@@ -29,7 +29,7 @@ class StatsAdminOverview extends BaseWidget
                 ->icon('heroicon-o-clipboard'),
 
             Stat::make('Fingerlings', Fingerling::count())
-                ->description('Total Distriburted Fingerlings')
+                ->description('Total Distributed Fingerlings')
                 ->chart([7, 2, 10, 3, 10, 4, 17])
                 ->color('danger')
                 ->icon('heroicon-o-clipboard-document-list'),

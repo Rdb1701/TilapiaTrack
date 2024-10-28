@@ -19,7 +19,7 @@ class SendFeedingNotifications extends Command
         $currentDay = $now->format('l');
         $currentTime = $now->format('H:i:s');
 
-        $schedules = FeedingSchedule::where('feed_time', $currentTime)
+        $schedules = FeedingSchedule::whereJsonContains('feed_time', $currentTime)
             ->whereJsonContains('days_of_week', $currentDay)
             ->with('fingerling.fishpond.user')
             ->get();

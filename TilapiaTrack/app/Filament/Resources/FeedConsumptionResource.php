@@ -7,7 +7,6 @@ use App\Filament\Exports\FeedConsumptionPdfExporter;
 use App\Filament\Resources\FeedConsumptionResource\Pages;
 use App\Filament\Resources\FeedConsumptionResource\RelationManagers;
 use App\Models\FeedConsumption;
-
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
 use Filament\Forms\Form;

@@ -12,7 +12,7 @@ class AdminHarvestChart extends ChartWidget
 {
     protected static ?string $heading = 'Harvests per Month';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
     protected static string $color = 'success';
     
     protected static bool $isLazy = false;

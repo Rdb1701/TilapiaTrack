@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\DB;
 class BeneficiaryTotalHarvest extends BaseWidget
 {
     protected static bool $isLazy = false;
-    protected static ?int $sort = 4;
-    protected int | string | array $columnSpan = 'full';
-
+    protected static ?int $sort = 5;
+    protected int | string | array $columnSpan = "full";
+    
     protected static ?string $heading = 'Beneficiary Total Harvests Reports';
 
     public function table(Table $table): Table

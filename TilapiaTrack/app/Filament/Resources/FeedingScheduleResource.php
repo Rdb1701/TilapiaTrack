@@ -48,10 +48,22 @@ class FeedingScheduleResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\TimePicker::make('feed_time')
-                    ->seconds(false)
-                    ->format('H:i')
+                Forms\Components\Select::make('feed_time')
+                    ->options(function () {
+                        $times = [];
+                        $startTime = Carbon::createFromTime(0, 0);
+                        for ($i = 0; $i < 24; $i++) {
+                            $times[$startTime->format('H:i')] = $startTime->format('g:i A');
+                            $startTime->addHour();
+                        }
+                        return $times;
+                    })
+                    ->label('Feed Time')
+                    ->multiple()
+                    ->native(false)
                     ->required(),
+
+
                 Forms\Components\Select::make('days_of_week')
                     ->required()
                     ->multiple()
@@ -92,7 +104,16 @@ class FeedingScheduleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('feed_time')
                     ->label('Feed Time')
-                    ->dateTime('h:i A'),
+                    ->getStateUsing(function ($record) {
+                        // Directly use the array
+                        $times = $record->feed_time;
+
+                        // Format each time and join them with a comma
+                        return collect($times)->map(function ($time) {
+                            return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
+                        })->implode(', ');
+                    }),
+
                 Tables\Columns\TextColumn::make('days_of_week')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
