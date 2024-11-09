@@ -16,7 +16,7 @@ class VerifyAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        abort_if(Auth::user() && Auth::user()->role != "admin", 403);
+        abort_if(Auth::user() && Auth::user()->role != "admin" , 403);
         return $next($request);
     }
 }

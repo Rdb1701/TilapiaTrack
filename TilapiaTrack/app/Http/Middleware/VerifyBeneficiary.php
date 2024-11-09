@@ -16,7 +16,19 @@ class VerifyBeneficiary
      */
     public function handle(Request $request, Closure $next): Response
     {
-        abort_if(Auth::user() && Auth::user()->role != "beneficiary", 403);
+        // Check if the user is authenticated and either not a beneficiary or inactive
+        if (Auth::check()) {
+            // If the user is not a beneficiary or inactive
+            if (Auth::user()->role != 'beneficiary' || Auth::user()->isActive != 'active') {
+                // Log out the user and clear the session
+                Auth::logout();
+                session()->flush();
+
+                // Redirect the user with a message (optional)
+                return redirect()->route('filament.app.auth.login')->with('error', 'Your account is inactive or unauthorized.');
+            }
+        }
+
         return $next($request);
     }
 }

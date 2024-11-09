@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class BeneficiaryTotalHarvestReport extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
     protected static bool $isLazy = false;
     protected int | string | array $columnSpan = 'full';
 
