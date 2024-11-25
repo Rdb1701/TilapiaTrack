@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('feeds', function (Blueprint $table) {
+        Schema::create('feeding_programs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('feed_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->string('fish_size');
+            $table->string('feed_time')->nullable();
             $table->string('description')->nullable();
-            $table->decimal('price_per_kilo', 10, 2); // Price of feed per kilogram
+            $table->string('duration')->nullable();
+            // $table->dateTime('start_date');
+            // $table->dateTime('end_date');
             $table->timestamps();
         });
     }
@@ -25,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('feeds');
+        Schema::dropIfExists('feeding_programs');
     }
 };

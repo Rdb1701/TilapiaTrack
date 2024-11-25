@@ -29,6 +29,8 @@ class FishpondResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Hidden::make('user_id')
+                    ->default(fn() => Auth::id()),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->label('Fishpond Name')
@@ -69,6 +71,8 @@ class FishpondResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('size')

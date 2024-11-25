@@ -31,36 +31,58 @@ class FeedingScheduleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\select::make('fingerling_id')
+                Forms\Components\Select::make('fingerling_id')
                     ->options(function () {
-                        return \App\Models\Fingerling::with('fishpond.user')
+                        return \App\Models\Fingerling::whereHas('fishpond.user', function ($query) {
+                            $query->where('users.id', Auth::id());  // Assuming the user table is named 'users'
+                        })
+                            ->with('fishpond.user')  // Eager load the fishpond and user relationships
                             ->get()
                             ->mapWithKeys(function ($fingerling) {
                                 return [
-                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . $fingerling->quantity,
+                                    $fingerling->id => $fingerling->fishpond->name . ' - ' . $fingerling->fishpond->user->name . ' | ' . $fingerling->species . ' | ' . number_format($fingerling->quantity),
                                 ];
                             });
-                    })->label('Fishpond | Owner| Species | Quantity')
+                    })
+                    ->label('Fishpond | Owner | Species | Quantity')
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\TimePicker::make('feed_time')
-                    ->required(),
-                Forms\Components\Select::make('days_of_week')
+
+                Forms\Components\Select::make('feeding_program_id')
+                    ->options(function () {
+                        return \App\Models\FeedingProgram::with('feed')
+                            ->get()
+                            ->mapWithKeys(function ($program) {
+                                // Return the feeding program info with duration included
+                                return [
+                                    $program->id => $program->name . ' - ' . $program->fish_size . ' | ' . $program->feed->name . ' | Duration: ' . $program->duration . " months",
+                                ];
+                            });
+                    })->label('Feeding Program | Fish Size | Feeds | Duration')
+                    ->searchable()
+                    ->preload()
                     ->required()
-                    ->multiple()
-                    ->options([
-                        'Monday'    => 'Monday',
-                        'Tuesday'   => 'Tuesday',
-                        'Wednesday' => 'Wednesday',
-                        'Thursday'  => 'Thursday',
-                        'Friday'    => 'Friday',
-                        'Saturday'  => 'Saturday',
-                        'Sunday'    => 'Sunday',
-                    ])
-                    ->native(false)
-                    ->placeholder('Select days of the week'),
-            ])->columns(1);
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        // Fetch the selected program's duration and calculate end date
+                        $program = \App\Models\FeedingProgram::find($state);
+
+                        if ($program) {
+                            $startDate = Carbon::today();
+
+                            $set('start_date', $startDate->toDateString());
+                            $set('end_date', $startDate->addMonths(intval($program->duration))->toDateString());
+                        }
+                    }),
+
+                Forms\Components\DatePicker::make('start_date')
+                    ->required(),
+
+                Forms\Components\DatePicker::make('end_date')
+                    ->required()
+            ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -71,40 +93,35 @@ class FeedingScheduleResource extends Resource
                     ->numeric()
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('fingerling.species')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('fingerling.quantity')
                     ->numeric()
                     ->label('Quantity')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('feed_time')
-                    ->label('Feed Time')
+                Tables\Columns\TextColumn::make('feedingProgram.fish_size')
+                    ->searchable()
+                    ->label('Fish Size')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('feedingProgram.duration')
+                    ->label('Duration')
+                    ->searchable()
+                    ->sortable()
                     ->getStateUsing(function ($record) {
-                        // Directly use the array
-                        $times = $record->feed_time;
 
-                        // Format each time and join them with a comma
-                        return collect($times)->map(function ($time) {
-                            return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
-                        })->implode(', ');
+                        $duration = $record->feedingProgram->duration;
+
+                        return $duration . ' months';
                     }),
-                Tables\Columns\TextColumn::make('days_of_week')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('end_date')
+                    ->date()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
@@ -136,8 +153,8 @@ class FeedingScheduleResource extends Resource
             });
     }
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
+    // public static function canCreate(): bool
+    // {
+    //     return false;
+    // }
 }

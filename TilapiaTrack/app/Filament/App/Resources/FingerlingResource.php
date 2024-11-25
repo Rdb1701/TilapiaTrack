@@ -32,7 +32,7 @@ class FingerlingResource extends Resource
             ->schema([
                 Forms\Components\select::make('fishpond_id')
                     ->options(function () {
-                        return \App\Models\Fishpond::with('user')
+                        return \App\Models\Fishpond::with('user')->where('user_id', Auth::id())
                             ->get()
                             ->mapWithKeys(function ($fishpond) {
                                 return [
@@ -43,7 +43,6 @@ class FingerlingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Fishpond')
-                    ->disabled()
                     ->required(),
                 Forms\Components\Select::make('species')
                     ->options([
@@ -53,7 +52,6 @@ class FingerlingResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('date_deployed')
                     ->native(false)
-                    ->disabled()
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
                     ->required()
@@ -133,10 +131,10 @@ class FingerlingResource extends Resource
     }
 
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
+    // public static function canCreate(): bool
+    // {
+    //     return false;
+    // }
 
    
 }

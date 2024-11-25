@@ -40,8 +40,8 @@ class BeneficiaryTotalHarvestReport extends BaseWidget
             Tables\Columns\TextColumn::make('total_feed_consumed')
                 ->label('Total Feed Consumed (kg)')
                 ->formatStateUsing(fn($state) => number_format($state, 2)),
-            Tables\Columns\TextColumn::make('total_feed_cost')->label('Total Feed Cost')
-                ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
+            // Tables\Columns\TextColumn::make('total_feed_cost')->label('Total Feed Cost')
+            //     ->formatStateUsing(fn($state) => '₱' . number_format($state, 2)),
         ]);
     }
 }

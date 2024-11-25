@@ -26,6 +26,8 @@ class HarvestResource extends Resource
 
     protected static ?string $navigationGroup = 'Fingerling Consumptions';
 
+    protected static ?string $navigationLabel = 'Harvests Reports';
+
     protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form

@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('feeding_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fingerling_id')->constrained()->onDelete('cascade'); // Foreign key to fingerlings
-            $table->time('feed_time'); // Time of feeding
-            $table->string('days_of_week'); // Days of feeding (e.g., "Monday,Wednesday,Friday")
+            $table->foreignId('feeding_program_id')->constrained()->onDelete('cascade'); 
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
             $table->timestamps();
         });
     }
@@ -28,3 +29,5 @@ return new class extends Migration
         Schema::dropIfExists('feeding_schedules');
     }
 };
+
+

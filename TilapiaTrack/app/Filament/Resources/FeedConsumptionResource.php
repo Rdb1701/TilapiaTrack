@@ -26,6 +26,8 @@ class FeedConsumptionResource extends Resource
 
     protected static ?string $navigationGroup = 'Fingerling Consumptions';
 
+    protected static ?string $navigationLabel = 'Feed Consumption Reports';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form

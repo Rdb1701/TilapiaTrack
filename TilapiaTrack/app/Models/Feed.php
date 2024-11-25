@@ -12,6 +12,7 @@ class Feed extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'price_per_kilo'
     ];
 }

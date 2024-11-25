@@ -20,13 +20,16 @@ class FeedResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
     protected static ?string $navigationGroup = 'Fingerling Management';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('price_per_kilo')
@@ -40,6 +43,8 @@ class FeedResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price_per_kilo')
                     ->numeric()
@@ -58,7 +63,7 @@ class FeedResource extends Resource
                 //
             ])
             ->actions([
-                
+
                 Tables\Actions\EditAction::make()->modalWidth('lg'),
                 Tables\Actions\DeleteAction::make(),
             ])
