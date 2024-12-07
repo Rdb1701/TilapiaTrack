@@ -55,9 +55,18 @@ class FingerlingResource extends Resource
                 Forms\Components\TextInput::make('quantity')
                     ->required()
                     ->numeric(),
-                Forms\Components\DatePicker::make('expected_harvest_date')
-                    ->native(false)
-                    ->required(),
+                Forms\Components\TextInput::make('weight')
+                    ->required()
+                    ->placeholder("in grams")
+                    //  ->formatStateUsing(fn($state) => $state . ' grams')
+                    ->numeric(),
+                Forms\Components\TextInput::make('feed_amount')
+                    ->required()
+                    // ->formatStateUsing(fn($state) => $state . ' %')
+                    ->placeholder("in %")
+                    ->numeric(),
+
+
             ])->columns(1);
     }
 
@@ -83,8 +92,12 @@ class FingerlingResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('expected_harvest_date')
-                    ->date()
+                Tables\Columns\TextColumn::make('weight')
+                    ->label('Average Weight')
+                    ->formatStateUsing(fn($state) => $state . ' grams')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('feed_amount')
+                    ->formatStateUsing(fn($state) => $state . ' %')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -99,7 +112,7 @@ class FingerlingResource extends Resource
                 //
             ])
             ->actions([
-                
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

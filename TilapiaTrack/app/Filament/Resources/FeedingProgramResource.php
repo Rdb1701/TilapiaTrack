@@ -29,19 +29,27 @@ class FeedingProgramResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required(),
+                Forms\Components\TextInput::make('age_range')
+                    ->numeric()
+                    ->placeholder('in weeks')
+                    ->required(),
                 Forms\Components\Select::make('feed_id')
                     ->relationship(name: 'feed', titleAttribute: 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
+
                 Forms\Components\Select::make('fish_size')
                     ->options([
                         'Fingerling'  => 'Fingerling',
                         'Juvenile'    => 'Juvenile',
+                        'Sub-Adult'       => 'Sub-Adult',
                         'Adult'       => 'Adult',
-
                     ])
                     ->native(false)
+                    ->required(),
+                Forms\Components\TextInput::make('feeding_frequency')
+                    ->numeric()
                     ->required(),
                 Forms\Components\Select::make('feed_time')
                     ->options(function () {
@@ -57,28 +65,21 @@ class FeedingProgramResource extends Resource
                     ->multiple()
                     ->native(false)
                     ->required(),
-                Forms\Components\Textarea::make('description')
+                Forms\Components\TextInput::make('fish_amount')
+                    ->label('Feed Amount')
                     ->required()
+                    ->placeholder('% OF BODY WEIGHT')
+                    ->numeric()
                     ->maxLength(255),
-                Forms\Components\Select::make('duration')
-                    ->options([
-                        '1'  => '1 Month',
-                        '2'  => '2 Months',
-                        '3'  => '3 Months',
-                        '4'  => '4 Months',
-                        '5'  => '5 Months',
-                        '6'  => '6 Months',
-                        '7'  => '7 Months',
-                        '8'  => '8 Months',
-                        '9'  => '9 Months',
-                        '10' => '10 Months',
-                        '11' => '11 Months',
-                        '12' => '12 Months',
-                    ])
-                    ->native(false) // Enables dropdown styling for better user experience
-                    ->label('Duration')
-                    ->required(),
-
+                Forms\Components\TextInput::make('protein_content')
+                    ->required()
+                    ->placeholder('in %')
+                    ->numeric()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('typical_weight_range')
+                    ->required()
+                    ->placeholder('in grams')
+                    ->maxLength(255),
             ])->columns(1);
     }
 
@@ -91,35 +92,37 @@ class FeedingProgramResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('fish_size')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('feed.name')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('description')
+                    ->label('Fish Growth')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('feed_time')
-                    ->label('Feed Time')
-                    ->getStateUsing(function ($record) {
-                        // Directly use the array
-                        $times = $record->feed_time;
+                Tables\Columns\TextColumn::make('age_range')
+                    ->label('Age Duration')
+                    ->formatStateUsing(fn($state) => $state . ' weeks')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('fish_amount')
+                    ->label('Feed Amount')
+                    ->formatStateUsing(fn($state) => $state . ' %')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('protein_content')
+                    ->label('Protein Content')
+                    ->formatStateUsing(fn($state) => $state . ' %')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('feed.name')
+                    ->searchable(),
+                // Tables\Columns\TextColumn::make('feed_time')
+                //     ->label('Feed Time')
+                //     ->getStateUsing(function ($record) {
+                //         // Directly use the array
+                //         $times = $record->feed_time;
 
-                        // Format each time and join them with a comma
-                        return collect($times)->map(function ($time) {
-                            return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
-                        })->implode(', ');
-                    }),
+                //         // Format each time and join them with a comma
+                //         return collect($times)->map(function ($time) {
+                //             return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
+                //         })->implode(', ');
+                //     }),
+                Tables\Columns\TextColumn::make('typical_weight_range')
+                ->formatStateUsing(fn($state) => $state . ' grams')
+                ->searchable(),
 
-                Tables\Columns\TextColumn::make('duration')
-                    ->sortable()
-                    ->getStateUsing(function ($record) {
-
-                        $duration = $record->duration;
-                
-                        return $duration . ' months';
-                    }),
 
                 // Tables\Columns\TextColumn::make('duration')
                 //     ->label('Duration')

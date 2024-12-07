@@ -39,7 +39,7 @@ class FeedingMonitoring extends BaseWidget
                 Tables\Columns\TextColumn::make('harvest_countdown')
                     ->label('Harvest Countdown')
                     ->getStateUsing(function ($record) {
-                        if (!$record->feedingProgram || !$record->end_date) {
+                        if (!$record || !$record->end_date) {
                             return 'Invalid end date';
                         }
 
@@ -57,7 +57,7 @@ class FeedingMonitoring extends BaseWidget
                     ->label('Progress')
                     ->view('filament.tables.columns.progress-bar')
                     ->getStateUsing(function ($record) {
-                        if (!$record->feedingProgram || !$record->start_date || !$record->end_date) {
+                        if (!$record || !$record->start_date || !$record->end_date) {
                             return null;
                         }
 
@@ -65,10 +65,28 @@ class FeedingMonitoring extends BaseWidget
                         $endDate = Carbon::parse($record->end_date);
                         $today = Carbon::now();
 
+                        // Calculate total duration in days
                         $totalDuration = $startDate->diffInDays($endDate);
+
+                        // Handle case where start and end dates are the same (avoid division by zero)
+                        if ($totalDuration <= 0) {
+                            // If total duration is zero or negative (same start and end date), return 100% progress
+                            return [
+                                'progress' => 100,
+                                'color' => 'primary',
+                            ];
+                        }
+
+                        // Calculate the elapsed time in days
                         $elapsed = $startDate->diffInDays($today);
 
+                        // Calculate the progress as a percentage of elapsed time vs total duration
                         $progress = min(100, max(0, ($elapsed / $totalDuration) * 100));
+
+                        // If it's the day before harvest, force progress to 100%
+                        if ($today->isAfter($endDate->subDay())) {
+                            $progress = 100;
+                        }
 
                         return [
                             'progress' => round($progress, 2),

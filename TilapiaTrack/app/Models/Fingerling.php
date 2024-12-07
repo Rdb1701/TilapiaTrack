@@ -16,7 +16,9 @@ class Fingerling extends Model
         'species',
         'date_deployed',
         'quantity',
-        'expected_harvest_date'
+        'weight',
+        'feed_amount'
+       
     ];
 
     public function fishpond(): BelongsTo

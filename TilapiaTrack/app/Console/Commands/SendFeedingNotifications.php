@@ -16,21 +16,21 @@ class SendFeedingNotifications extends Command
     public function handle()
     {
         $now = Carbon::now();
-        $currentDay = $now->format('l');
-        $currentTime = $now->format('H:i:s');
+        $currentTime = $now->format('H:i:s'); // Get current time in HH:mm format
 
-        $schedules = FeedingSchedule::whereJsonContains('feed_time', $currentTime)
-            ->whereJsonContains('days_of_week', $currentDay)
-            ->with('fingerling.fishpond.user')
-            ->get();
+        // Query all FeedingSchedules where the feeding_program's feed_time matches the current time
+        $schedules = FeedingSchedule::whereHas('feedingProgram', function ($query) use ($currentTime) {
+            $query->whereJsonContains('feed_time', $currentTime);
+        })
+        ->with('fingerling.fishpond.user') // Load user related to fingerling's fishpond
+        ->get();
         
-            // $schedules = FeedingSchedule::with('fingerling.fishpond.user')
-            // ->get();
-
+        // Process each schedule
         foreach ($schedules as $schedule) {
             $user = $schedule->fingerling->fishpond->user;
 
             if ($user) {
+                // Send notification to user
                 Notification::make()
                     ->title('Feeding Time Reminder!')
                     ->body("Hello {$user->name}, it's time to feed your fish in {$schedule->fingerling->fishpond->name}!")

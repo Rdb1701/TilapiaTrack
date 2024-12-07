@@ -17,8 +17,11 @@ class FeedingProgram extends Model
         'fish_size',
         'name',
         'feed_time',
-        'description',
-        'duration'
+        'age_range',
+        'feeding_frequency',
+        'fish_amount',
+        'protein_content',
+        'typical_weight_range'
     ];
 
 

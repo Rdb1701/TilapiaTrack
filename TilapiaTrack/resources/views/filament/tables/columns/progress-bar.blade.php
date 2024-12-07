@@ -1,45 +1,16 @@
-<style>
-    .progress-container {
-        width: 100%;
-        background-color: #e0e0e0;
-        border-radius: 9999px;
-        height: 10px;
-        overflow: hidden;
-    }
-    .progress-bar {
-        height: 100%;
-        border-radius: 9999px;
-        transition: width 0.5s ease-in-out;
-    }
-    .progress-primary {
-        background-color: #3b82f6;
-    }
-    .progress-warning {
-        background-color: #f59e0b;
-    }
-    .progress-text {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-    .progress-no-data {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-</style>
-
 @php
     $progress = $getState();
 @endphp
 
 @if ($progress)
-    <div class="progress-container ">
-        <div class="progress-bar {{ $progress['color'] === 'warning' ? 'progress-warning' : 'progress-primary' }}" style="width: {{ $progress['progress'] }}%"></div>
+    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+        <div class="h-2.5 rounded-full {{ $progress['color'] === 'warning' ? 'bg-yellow-400' : 'bg-blue-600' }}" style="width: {{ $progress['progress'] }}%"></div>
     </div>
-    <div class="progress-text">
+    <div class="text-sm mt-1">
         {{ number_format($progress['progress'], 0) }}% complete
     </div>
 @else
-    <div class="progress-no-data">
+    <div class="text-sm text-gray-500">
         No data available
     </div>
 @endif

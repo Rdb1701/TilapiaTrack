@@ -14,13 +14,15 @@ return new class extends Migration
         Schema::create('feeding_programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feed_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->string('fish_size');
+            $table->string('name')->nullable();
+            $table->string('age_range')->nullable();
+            $table->string('feeding_frequency')->nullable();
             $table->string('feed_time')->nullable();
-            $table->string('description')->nullable();
-            $table->string('duration')->nullable();
-            // $table->dateTime('start_date');
-            // $table->dateTime('end_date');
+            $table->string('fish_amount')->nullable();
+            $table->string('fish_size')->nullable();
+            $table->string('protein_content')->nullable();
+            $table->string('feed_type_image')->nullable();
+            $table->string('typical_weight_range')->nullable();
             $table->timestamps();
         });
     }

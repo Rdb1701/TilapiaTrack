@@ -21,7 +21,7 @@ class FeedingScheduleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationGroup = 'Feeding Schedules';
+    protected static ?string $navigationGroup = 'Feeding Management';
 
     protected static ?string $navigationLabel = 'Feeding Schedules';
 

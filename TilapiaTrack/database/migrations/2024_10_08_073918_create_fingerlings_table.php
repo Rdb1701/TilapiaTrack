@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('species');
             $table->date('date_deployed');
             $table->integer('quantity'); // Number of fingerlings deployed
-            $table->date('expected_harvest_date')->nullable();
+            $table->string('weight');
+            $table->string('feed_amount');
             $table->timestamps();
         });
     }

@@ -102,6 +102,17 @@ class FeedingScheduleResource extends Resource
                 Tables\Columns\TextColumn::make('feedingProgram.name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('feed_time')
+                    ->label('Feeding Time')
+                    ->getStateUsing(function ($record) {
+                        // Directly use the array
+                        $times = $record->feedingProgram->feed_time;
+
+                        // Format each time and join them with a comma
+                        return collect($times)->map(function ($time) {
+                            return Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
+                        })->implode(', ');
+                    }),
                 Tables\Columns\TextColumn::make('feedingProgram.fish_size')
                     ->searchable()
                     ->label('Fish Size')
